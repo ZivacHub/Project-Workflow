@@ -145,7 +145,7 @@ async function install(update) {
   say(`  owner name      : ${owner}      Remote Control: ${cfg.remoteControl ? "on" : "off"}   chat renaming: ${cfg.renameChat ? "on" : "off"}`);
   say(`  files           : ${writes.filter((w) => w.why === "new").length} new, ${writes.filter((w) => w.why !== "new").length} replaced, ${toWrite.length - writes.length} already up to date${stale.length ? `, ${stale.length} no longer needed (removed)` : ""}`);
   say(`  settings.json   : ${settingsChanged ? "add the session start-up check" : "already has it"}`);
-  say(`  CLAUDE.md       : ${rulesChanged ? "add/refresh the marked PROJECTS_ROOT block (your own text stays)" : "block already current"}`);
+  say(`  CLAUDE.md       : ${rulesChanged ? "add/refresh the marked Project Workflow block (your own text stays)" : "block already current"}`);
   if (kept.length) { say(`  kept as you left them (you edited them): ${kept.length}`); kept.slice(0, 8).forEach((f) => say("    " + f)); }
   if (DRY) return;
   if (!(await confirm("Go ahead?"))) fail("Cancelled. Nothing was changed.", 1);
