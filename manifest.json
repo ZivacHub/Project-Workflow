@@ -1,0 +1,75 @@
+{
+  "name": "project-workflow",
+  "templateVersion": 3,
+  "updateUrl": "https://raw.githubusercontent.com/ZivacHub/Project-Workflow/main/VERSION",
+  "rules": "global-rules.md",
+  "template": "template",
+  "skills": [
+    {
+      "name": "pickup",
+      "src": "skills/pickup"
+    },
+    {
+      "name": "handoff",
+      "src": "skills/handoff"
+    },
+    {
+      "name": "plan",
+      "src": "skills/plan"
+    },
+    {
+      "name": "new-project",
+      "src": "skills/new-project"
+    },
+    {
+      "name": "project-audit",
+      "src": "skills/project-audit"
+    },
+    {
+      "name": "project-sync",
+      "src": "skills/project-sync"
+    },
+    {
+      "name": "prior-art",
+      "src": "skills/prior-art"
+    },
+    {
+      "name": "update-workflow",
+      "src": "skills/update-workflow"
+    }
+  ],
+  "hooks": [
+    {
+      "dest": "project-check.mjs",
+      "src": "hooks/project-check.mjs"
+    },
+    {
+      "dest": "pickup-context.mjs",
+      "src": "hooks/pickup-context.mjs"
+    },
+    {
+      "dest": "handoff-lint.mjs",
+      "src": "hooks/handoff-lint.mjs"
+    },
+    {
+      "dest": "project-workflow-status.mjs",
+      "src": "hooks/project-workflow-status.mjs"
+    },
+    {
+      "dest": "memory-rotate.mjs",
+      "src": "hooks/memory-rotate.mjs"
+    },
+    {
+      "dest": "rules-digest.md",
+      "src": "hooks/rules-digest.md"
+    },
+    {
+      "dest": "lib/project-workflow.mjs",
+      "src": "hooks/lib/project-workflow.mjs"
+    },
+    {
+      "dest": "lib/update-check.mjs",
+      "src": "hooks/lib/update-check.mjs"
+    }
+  ]
+}

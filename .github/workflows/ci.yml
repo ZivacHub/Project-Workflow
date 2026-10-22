@@ -1,0 +1,29 @@
+name: tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [18, 20, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Every script parses
+        shell: bash
+        run: |
+          for f in install.mjs hooks/*.mjs hooks/lib/*.mjs tests/*.mjs; do node --check "$f"; done
+      - name: Installer (install, update, check, uninstall, update line)
+        run: node tests/test_installer.mjs
+      - name: Month archive script
+        run: node tests/test_rotate.mjs
+      - name: Example project is a valid v3 project
+        run: node tests/test_example.mjs

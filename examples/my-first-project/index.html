@@ -1,0 +1,12 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Weather note</title>
+<h1>What to wear today?</h1>
+<p id="advice">Type today's temperature below.</p>
+<input id="t" type="number" placeholder="Temperature in °C">
+<script>
+  document.getElementById("t").addEventListener("input", (e) => {
+    const t = Number(e.target.value);
+    document.getElementById("advice").textContent = t < 8 ? "A warm coat." : t < 18 ? "A light jacket." : "T-shirt weather.";
+  });
+</script>

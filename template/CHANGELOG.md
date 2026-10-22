@@ -1,0 +1,31 @@
+# Template changelog
+
+The `project-sync` skill reads this to know what to add to a project that is on an older version.
+A project records its version in `.claude/project-workflow.json`. Rule for every entry: say what it adds, which files, and whether it is safe to add automatically (new file) or needs the owner's OK (changes an existing file).
+
+## v3 (DRAFT, started 2026-10-17; NOT released: `VERSION` stays 2 until the skills and `project-sync` know the new layout)
+Why: project documents pile up in the root (up to 13 md files), `PLAN.md` grew to 37-90 KB mixing the progress board with every phase's detail and copies of other files, history files only grow, so a thorough pickup read about 160 KB before any work. Plan and the owner's answers: `.claude/plans/docs-reorganisation.md` (workshop repo).
+- LAYOUT: project root keeps only code + `CLAUDE.md` + `README.md`. Everything else goes to `docs/`: `INDEX.md` (every file with "read when"), `PRODUCT.md`, `DECISIONS.md` (open on top, decided below), `plan/BOARD.md` (status board + rules + change log only), `plan/phases/NN-name.md` (detail of one phase), `reference/` (ARCHITECTURE, DESIGN, TESTING, TASKS, SECURITY_CHECKLIST, AUDIT, PRIOR_ART). Moving a project = `project-sync` (needs the owner's OK per project; open chats run `/handoff` first).
+- PLAN.md split: board + rules + change log -> `docs/plan/BOARD.md`; each phase's detail -> its own `phases/NN-name.md`; decisions copy -> `DECISIONS.md`; skills list -> `CLAUDE.md`; work split + quality checklist -> `reference/TASKS.md`; risks -> the phase file. Nothing is deleted.
+- History: `.claude/memory.md` keeps the current month; older months move to `.claude/memory/YYYY-MM.md`. `AUDIT.md` keeps open items on top; fixed ones go to `docs/reference/archive/`.
+- Reading tiers: always = CLAUDE.md, PRODUCT, BOARD, open decisions, handoff; next step = current phase file + the handoff's NEW `Read first:` line (1-4 files); on demand = rest. Target: a pickup reads at most about 30 KB.
+- Scripts (`~/.claude/hooks`) read BOTH layouts (new place first, old place as fall-back), so a project works before and after it moves. New checks (layout v3 only): `Read first:` line present and its files exist, `docs/INDEX.md` lists every doc, no loose doc files in the root, CLAUDE.md points to `docs/INDEX.md`. `pickup-context.mjs` prints a read-budget line.
+- Skills updated for the layout (2026-10-18): `pickup` (reading tiers, "Not opened" line), `handoff` (`Read first:` line, month archive), `plan` (board + phase files, section G splits an old PLAN.md), `new-project`, `project-audit` (AUDIT open items on top, fixed ones archived), `project-sync` (the step-by-step move from v2 to v3), `prior-art` (file location). New script `memory-rotate.mjs` (dry run by default; moves old months to `.claude/memory/YYYY-MM.md`, deletes nothing).
+- New projects started from this template are layout v3 already: `_template/.claude/project-workflow.json` says `"template": 3` although `VERSION` is still 2 (not released). Moving existing projects is described in the `project-sync` skill, section "Move a project from docs layout v2 to v3".
+- Person-neutral (2026-10-21): shared skills, hook messages, the rules digest and the template say "the owner" instead of a name. The owner's name and personal options come from `~/.claude/project-workflow-config.json` (`owner`, `remoteControl`, `renameChat`; missing = the original owner's habits, so nothing changes where no file exists); `node ~/.claude/hooks/pickup-context.mjs --options` prints them for the skills. Remote Control handling and chat renaming in `pickup`/`handoff` only run when their option is on.
+- Safe to add automatically: nothing. The move changes existing files and needs the owner's OK (per project).
+
+## v2 (2026-10-15)
+Why: chats showed drift after a few pickups (jumped from phase 4 to 7, lost the original goal), jargon questions the owner couldn't answer, decisions made without the owner, and no way to see plan progress.
+- NEW `DECISIONS.md`: every decision with the owner's own words and a status (decided / open / proposed). Safe to add. Existing decisions tables in PLAN.md are copied in, not deleted.
+- NEW `PLAN.md` "Status board": `[ ]` / `[~]` / `[x]` / `[-]` per phase and step, a "Change log" and a "Phase gate" rule. For an existing plan, a board is built from its phases and steps; statuses come from evidence (handoff, memory, tests) and uncertain ones are marked `[~]`. Needs the owner's OK (edits PLAN.md).
+- CHANGED `.claude/handoff.md` format: one rewritten-from-scratch file with plan position, strictly numbered next steps, waiting-on-the owner list, "Git: branch @ hash". Checked by script. Needs the owner's OK (rewrites the file).
+- CHANGED `PRODUCT.md` = north star in the owner's own words, non-negotiables, success, non-goals. Loaded at every session start. If missing, a DRAFT is written from what the owner has said and the owner confirms it.
+- NEW `.claude/project-workflow.json` with the template version. Safe to add.
+- NEW `SECURITY_CHECKLIST.md` (the owner's "19 things to check" as text; used by the audit and the security phase). Safe to add.
+- OPTIONAL `Focus:` line in the Status board for plans that run workstreams in parallel (see PLAN.md "Rules for this plan").
+- Existing projects migrated 2026-10-15: Socials Automatisation, Learning_Script_Maker, Automatic_Job_Application (each in its own commit "Workflow v2").
+- Global (nothing to do per project): working-rules digest injected at every session start, choice-card question style, phase gate, `/plan`, `/project-sync`, `project-workflow-status`.
+
+## v1 (2026-10-01)
+First template: CLAUDE.md, PRODUCT/DESIGN/ARCHITECTURE/TESTING/TASKS.md, `.claude/memory.md`, `.claude/handoff.md`.
