@@ -4,6 +4,8 @@ A way of working that keeps Claude on track from one chat to the next. Every pro
 
 You keep the same short commands in every project: `/pickup`, `/handoff`, `/plan`, `/new-project`, `/project-audit`, `/project-sync`.
 
+![How it works: the project's goal, plan board, decisions and handoff are read by /pickup at the start of a chat and the handoff is rewritten by /handoff at the end](how-it-works.svg)
+
 ## What you need
 - [Claude Code](https://claude.com/claude-code) (terminal, desktop app or IDE).
 - [Node.js](https://nodejs.org) 18 or newer (the helper scripts and the installer are Node). Check with `node --version`.
