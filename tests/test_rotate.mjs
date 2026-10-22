@@ -1,10 +1,14 @@
 // Tests memory-rotate.mjs on throwaway folders in the scratchpad (never on a real project).
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { homedir, tmpdir } from "node:os";
 
-const SCRIPT = join(process.env.HOOKS || join(homedir(), ".claude", "hooks"), "memory-rotate.mjs");
+// Which copy of the script: $HOOKS, else the one shipped next to this test (public package: ../hooks; workshop repo: ../claude/hooks), else the installed one.
+const HERE = dirname(fileURLToPath(import.meta.url));
+const SCRIPT = [process.env.HOOKS, join(HERE, "..", "hooks"), join(HERE, "..", "claude", "hooks"), join(homedir(), ".claude", "hooks")]
+  .filter(Boolean).map((d) => join(d, "memory-rotate.mjs")).find((f) => existsSync(f)) || join(homedir(), ".claude", "hooks", "memory-rotate.mjs");
 const T = join(tmpdir(), "project-workflow-test-rotate");
 let pass = 0, fail = 0;
 const check = (n, ok, d = "") => { ok ? pass++ : fail++; console.log(`${ok ? "PASS" : "FAIL"}  ${n}${ok ? "" : "  -> " + d}`); };
