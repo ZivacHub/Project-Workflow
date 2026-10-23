@@ -6,3 +6,4 @@ Project Workflow rules (full text in ~/.claude/CLAUDE.md). In rules and skills "
 5. TICK THE BOARD with proof (test/screenshot) in the same change set as the work.
 6. PRODUCT.md is the compass (the goal in {{OWNER}}'s own words). If the next action doesn't serve it, stop and ask.
 7. Save a handoff at milestones (handoff skill). Rewrite it from scratch each time; never stack patches.
+8. GRADE FIRST: before any task say its grade (light/standard/strong), model, effort in one line (delegate skill); check helpers' results before ticking.

@@ -1,5 +1,10 @@
 # Project Workflow: changes per version
 
+## v0.3.0
+- NEW `/overview`: where is the project right now? A short plain summary plus a picture page (phases in a row, the step you are on highlighted with its grade, decisions waiting, last handoff, git state). From the projects folder it shows every project. Read-only; the page goes to the temp folder, never into your project. New script `overview.mjs`, new skill `overview`.
+- `/delegate` changed: Claude now grades EVERY task right before starting it (the plan's grade is only a first guess) and says the grade, model and effort in one line. The model table also has an effort column (light = low, standard = medium, strong = high); xhigh, max and "ultracode" are never chosen automatically. A one-line reminder was added to the start-up rules every chat gets.
+- Update with `node install.mjs update`; nothing you edited is replaced.
+
 ## v0.2.0
 - NEW `delegate` skill: every plan step gets a difficulty grade (`light` / `standard` / `strong`) when a plan is made or edited. When a step starts, light and standard steps that are clearly described run in a helper on a cheaper model, hard steps stay in your chat, and the result is checked against the step's test before the step is ticked. The owner approving a plan that shows the grades is the permission to start helpers. One model table (in the skill) is the only place that names models.
 - `plan`, `new-project` and `pickup` follow it; the project template's phase file has a `Grade:` field and the board has a rule for it. Existing plans are not changed: a step without a grade counts as `standard`.

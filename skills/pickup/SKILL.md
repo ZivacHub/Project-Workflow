@@ -54,7 +54,7 @@ When the owner answers: write the owner's own words into DECISIONS.md (docs/DECI
 
 ## 6. Start
 - **First step of a phase?** Run the phase gate (see `plan` skill): plain-words preview, visible skills/repos search result, the phase's open decisions as choice cards, the owner's go. Then build.
-- **Mid-phase and not blocked?** Start the next step. Follow the project's CLAUDE.md skills; use the step's "Done when/Test". Read the step's `Grade:` in the phase file (none = `standard`) and follow the `delegate` skill: say in one line where the step will run (a helper on the cheaper model, or here), delegate only what that skill allows, and check the result against the step's Test before ticking.
+- **Mid-phase and not blocked?** Start the next step. Follow the project's CLAUDE.md skills; use the step's "Done when/Test". Follow the `delegate` skill BEFORE starting: grade the step on the spot (the phase file's `Grade:` is only a first guess; none = grade it now), say in one line the grade, model, effort and where it runs (a helper, or here), delegate only what that skill allows, and check the result against the step's Test before ticking.
 - **Blocked on the owner?** Ask the choice card(s), and offer the next unblocked step from the plan (not a different phase) meanwhile.
 - **The owner added something new** ("continue, but first X" or a new idea): do X, and if it changes scope, propose the plan edit (plan skill: add/reorder with a Change log line) instead of just doing it.
 - When a step is done: tick the board with proof right away. At a phase end or when the chat is getting long: `handoff`.

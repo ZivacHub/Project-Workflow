@@ -10,7 +10,7 @@ Board: docs/plan/BOARD.md lists this phase's steps and ticks. This file holds th
 ## Steps
 **0.1 <step title>** — Grade: <light|standard|strong> (<short reason>). Use: <skill/tool>. Done when: <observable result>. Test: <command / screenshot / check>. Decisions needed: <D-ids or none>.
 **0.2 ...**
-Grades (the `delegate` skill has the rubric and the model table): `light` = mechanical and easy to check, runs in a helper on the cheapest model; `standard` = clear spec, follows a pattern, helper on the middle model; `strong` = unclear or high-stakes or needs the owner, stays in the main chat. No grade = `standard`.
+Grades (the `delegate` skill has the rubric and the model table): `light` = mechanical and easy to check, runs in a helper on the cheapest model; `standard` = clear spec, follows a pattern, helper on the middle model; `strong` = unclear or high-stakes or needs the owner, stays in the main chat. The grade is a first guess: Claude grades the step again right before starting it.
 
 ## Risks and open points (only for this phase)
 - <item>; the moment the owner has to answer one, move it to docs/DECISIONS.md as `[open]`.

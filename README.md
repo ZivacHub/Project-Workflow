@@ -22,7 +22,7 @@ Try it without risk first: `node install.mjs --dry-run` prints everything it wou
 Everything is inside your Claude folder (`~/.claude`) and your projects folder. Nothing else.
 | What | Where |
 |---|---|
-| Skills (`pickup`, `handoff`, `plan`, `new-project`, `project-audit`, `project-sync`, `prior-art`, `info`, `delegate`, `update-workflow`) | `~/.claude/skills/<name>/` |
+| Skills (`pickup`, `handoff`, `plan`, `new-project`, `project-audit`, `project-sync`, `prior-art`, `info`, `delegate`, `overview`, `update-workflow`) | `~/.claude/skills/<name>/` |
 | Helper scripts and the start-up check | `~/.claude/hooks/` |
 | One start-up entry that runs the check when a chat opens | `~/.claude/settings.json` (your other settings stay) |
 | A clearly marked block of working rules | `~/.claude/CLAUDE.md` (your own text stays; the block sits between `PROJECT-WORKFLOW:BEGIN` and `END`) |
@@ -38,7 +38,8 @@ It never replaces a file you edited, and it stops (without changing anything) if
 |---|---|
 | `/new-project` | A long interview, a search for similar projects, one-by-one choices, then a phased plan. Nothing is built until you approve the plan. Also for a project that already exists: it reads the code first, skips what the files already answer and plans only what remains. |
 | `/info` | Lists these commands and how to use each one, in any chat. |
-| `/delegate` | Every plan step gets a difficulty grade (light / standard / strong). Light and standard steps run in helpers on a cheaper model, hard ones stay in your chat, and each result is checked before the step is ticked. Plans get grades automatically. |
+| `/overview` | Where are we? A short plain summary plus a picture page: the phases in a row, the step you are on highlighted, decisions waiting, last handoff, git state. From the projects folder it shows every project. Changes nothing. |
+| `/delegate` | Before every task Claude gives it a difficulty grade (light / standard / strong) and says it out loud. Light and standard tasks run in helpers on a cheaper model and effort, hard ones stay in your chat, and each result is checked before the step is ticked. It happens by itself. |
 | `/pickup` or "continue" | Loads the goal, plan board, open decisions and handoff, checks them against git, tells you in plain words where you are, continues in plan order. |
 | `/handoff` or "wrap up" | Rewrites the handoff note from scratch so the next chat starts cleanly. |
 | `/plan` | Shows progress, changes the plan (with your OK), runs the check before and after each phase. |

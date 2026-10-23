@@ -2,7 +2,7 @@
 // no layout warnings, handoff check OK, the right phase file and a small pickup. Runs on a copy in a throwaway folder.
 // run: node tests/test_example.mjs   (workshop repo: node _workflow/tests/test_example.mjs)
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -41,6 +41,17 @@ try {
   check("start-up check shows the goal, the plan and the open decision", ctx.includes("I never know what to wear") && ctx.includes("1/3 phases") && ctx.includes("D2"), ctx.slice(0, 200));
   r = run("memory-rotate.mjs", [app]);
   check("month archive has nothing to do on a fresh project", r.code === 0 && r.out.includes("nothing to archive"), r.out);
+  // /overview: text summary + a self-contained picture page
+  const page = join(TMP, "overview.html");
+  r = run("overview.mjs", [app, "--out", page]);
+  check("overview: text names the phase, the next step with its grade, the open decision", r.code === 0 && /Now: Phase 1/.test(r.out) && /Next step: 1\.2 Advice text/.test(r.out) && /\[grade: standard\]/.test(r.out) && /decision\(s\): D2/.test(r.out), r.out);
+  const html = existsSync(page) ? readFileSync(page, "utf8") : "";
+  check("overview: picture page is written, shows the plan and the step, needs no network or script", html.startsWith("<!doctype html>") && html.includes("Advice text for cold, mild and warm") && html.includes("aria-current") && !/<script|https?:\/\//.test(html), html.slice(0, 120));
+  check("overview: nothing was written into the project", !existsSync(join(app, "overview.html")) && !existsSync(join(app, ".claude", "overview.html")));
+  r = run("overview.mjs", [projects, "--no-html"]);
+  check("overview from the projects folder lists every project", r.code === 0 && /All projects \(1\)/.test(r.out) && r.out.includes("my-first-project"), r.out);
+  r = run("overview.mjs", [TMP, "--no-html"]);
+  check("overview outside any project: says so and exits 1", r.code === 1 && /Not inside a project folder/.test(r.out), r.out);
 } finally {
   rmSync(TMP, { recursive: true, force: true });
   console.log(existsSync(TMP) ? "CLEANUP FAILED" : "cleanup: throwaway folders removed");
