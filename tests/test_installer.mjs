@@ -31,7 +31,7 @@ const skillInPkg = (name) => (FLAT ? join(PKG, "skills", name, "SKILL.md") : joi
 const INSTALLER = inPkg("install.mjs");
 const run = (args, env = {}) => { try { return { code: 0, out: execFileSync("node", [INSTALLER, ...args], { encoding: "utf8", env: { ...process.env, PROJECT_WORKFLOW_CLAUDE_DIR: "", PROJECT_WORKFLOW_ROOT: "", ...env }, stdio: ["ignore", "pipe", "pipe"] }) }; } catch (e) { return { code: e.status, out: (e.stdout || "") + (e.stderr || "") }; } };
 const world = (name) => { const base = join(TMP, name); const claude = join(base, "claude"), root = join(base, "projects"); mkdirSync(base, { recursive: true }); return { base, claude, root, args: (...more) => ["--claude-dir", claude, "--root", root, "--owner", "Sam", "--yes", ...more] }; };
-const SKILLS = ["pickup", "handoff", "plan", "new-project", "project-audit", "project-sync", "prior-art", "info", "update-workflow"];
+const SKILLS = ["pickup", "handoff", "plan", "new-project", "project-audit", "project-sync", "prior-art", "info", "delegate", "update-workflow"];
 
 try {
   // ---------- 1. fresh install ----------
@@ -118,18 +118,18 @@ try {
   const w5 = world("update");
   run(["install", ...w5.args()]);
   appendFileSync(join(w5.claude, "skills", "handoff", "SKILL.md"), "\nMy handoff note.\n");   // the person edited one of ours
-  writeFileSync(inPkg("VERSION"), "0.2.0\n");
-  appendFileSync(skillInPkg("pickup"), "\nNEW IN 0.2.0\n");
+  writeFileSync(inPkg("VERSION"), "8.8.8\n");
+  appendFileSync(skillInPkg("pickup"), "\nNEW IN 8.8.8\n");
   appendFileSync(skillInPkg("handoff"), "\nNEW HANDOFF TEXT\n");
-  writeFileSync(inPkg("CHANGELOG.md"), "# changes\n\n## v0.2.0\nPickup got better.\n\n## v0.1.0 (pre-release)\nFirst.\n");
+  writeFileSync(inPkg("CHANGELOG.md"), "# changes\n\n## v8.8.8\nPickup got better.\n\n## v0.1.0 (pre-release)\nFirst.\n");
   const mf = j(inPkg("manifest.json")); mf.hooks = mf.hooks.filter((h) => h.dest !== "memory-rotate.mjs"); writeFileSync(inPkg("manifest.json"), JSON.stringify(mf, null, 2));
   r = run(["update", ...w5.args()]);
   check("update exits 0 and shows what is new", r.code === 0 && r.out.includes("What is new") && r.out.includes("Pickup got better") && !r.out.includes("First."), r.out);
-  check("update replaced our unchanged skill", readFileSync(join(w5.claude, "skills", "pickup", "SKILL.md"), "utf8").includes("NEW IN 0.2.0"));
+  check("update replaced our unchanged skill", readFileSync(join(w5.claude, "skills", "pickup", "SKILL.md"), "utf8").includes("NEW IN 8.8.8"));
   check("update kept the skill the person edited (and said so)", readFileSync(join(w5.claude, "skills", "handoff", "SKILL.md"), "utf8").includes("My handoff note.") && !readFileSync(join(w5.claude, "skills", "handoff", "SKILL.md"), "utf8").includes("NEW HANDOFF TEXT") && r.out.includes("kept as you left them"), r.out);
   check("update removed a script that is no longer in the package", !existsSync(join(w5.claude, "hooks", "memory-rotate.mjs")));
-  check("rules block shows the new version, still only one", readFileSync(join(w5.claude, "CLAUDE.md"), "utf8").includes("BEGIN v0.2.0") && (readFileSync(join(w5.claude, "CLAUDE.md"), "utf8").match(/PROJECT-WORKFLOW:BEGIN/g) || []).length === 1);
-  check("install record says 0.2.0", j(join(w5.claude, "project-workflow-install.json")).version === "0.2.0");
+  check("rules block shows the new version, still only one", readFileSync(join(w5.claude, "CLAUDE.md"), "utf8").includes("BEGIN v8.8.8") && (readFileSync(join(w5.claude, "CLAUDE.md"), "utf8").match(/PROJECT-WORKFLOW:BEGIN/g) || []).length === 1);
+  check("install record says 8.8.8", j(join(w5.claude, "project-workflow-install.json")).version === "8.8.8");
   r = run(["check", "--claude-dir", w5.claude]);
   check("check after update: all good, mentions the edited file", r.code === 0 && r.out.includes("edited by you"), r.out);
 
@@ -138,15 +138,15 @@ try {
   const server = createServer((req, res) => { hits++; res.statusCode = status; res.end(reply); });
   await new Promise((ok) => server.listen(0, "127.0.0.1", ok));
   const url = `http://127.0.0.1:${server.address().port}/VERSION`;
-  const w6 = world("notice"); run(["install", ...w6.args()]);   // installs 0.2.0 (the package copy is 0.2.0 now)
+  const w6 = world("notice"); run(["install", ...w6.args()]);   // installs 8.8.8 (the package copy is 8.8.8 now)
   const hookAt = async (w, extraEnv = {}) => { const p = execFileAsync("node", [join(w.claude, "hooks", "project-check.mjs")], { encoding: "utf8", env: { ...process.env, PROJECT_WORKFLOW_CLAUDE_DIR: w.claude, PROJECT_WORKFLOW_ROOT: "", PROJECT_WORKFLOW_UPDATE_URL: url, ...extraEnv } }); p.child.stdin.end(JSON.stringify({ cwd: w.root, source: "startup" })); const { stdout } = await p; return JSON.parse(stdout).hookSpecificOutput.additionalContext; };
   let c = await hookAt(w6);
-  check("newer version out: one UPDATE AVAILABLE line with both versions", c.includes("UPDATE AVAILABLE") && c.includes("v9.9.9") && c.includes("v0.2.0") && c.includes("update workflow") && hits === 1, `hits=${hits} ${c.slice(0, 150)}`);
+  check("newer version out: one UPDATE AVAILABLE line with both versions", c.includes("UPDATE AVAILABLE") && c.includes("v9.9.9") && c.includes("v8.8.8") && c.includes("update workflow") && hits === 1, `hits=${hits} ${c.slice(0, 150)}`);
   c = await hookAt(w6);
   check("second session the same day: line again, but no new request (cached)", c.includes("UPDATE AVAILABLE") && hits === 1, `hits=${hits}`);
   const stateFile = join(w6.claude, "project-workflow-update.json");
   writeFileSync(stateFile, JSON.stringify({ checkedAt: Date.now() - 2 * 864e5, latest: "9.9.9" }));
-  reply = "0.2.0"; c = await hookAt(w6);
+  reply = "8.8.8"; c = await hookAt(w6);
   check("a day later it asks again; same version as installed = no line", hits === 2 && !c.includes("UPDATE AVAILABLE"), `hits=${hits}`);
   writeFileSync(stateFile, JSON.stringify({ checkedAt: Date.now() - 2 * 864e5 })); reply = "<html>not a version</html>"; c = await hookAt(w6);
   check("garbage answer: no line, no crash", !c.includes("UPDATE AVAILABLE") && c.includes("[Workflow workshop]"));

@@ -38,6 +38,10 @@
       "src": "skills/info"
     },
     {
+      "name": "delegate",
+      "src": "skills/delegate"
+    },
+    {
       "name": "update-workflow",
       "src": "skills/update-workflow"
     }

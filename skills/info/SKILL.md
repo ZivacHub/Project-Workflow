@@ -17,6 +17,7 @@ Only LIST and explain. Never start one of the commands yourself, change a file o
 | `/project-audit` | An existing project with code: "what is wrong?" | Reads and tests the project, writes a findings list with a ready fix prompt for each, and a fix plan. Never changes your code by itself. |
 | `/project-sync` | The template changed | Brings older projects up to the current template, one at a time, asking first. |
 | `/prior-art` | "How do others do this?" | Searches GitHub for similar projects, reports ideas worth borrowing and what the licences allow. |
+| `/delegate` (or say "grade the steps", "save tokens") | A plan exists or is being made | Gives every plan step a difficulty grade (light / standard / strong). When a step starts, light and standard ones run in a helper on a cheaper model, hard ones stay with you, and every result is checked before the step is ticked. Plans get grades automatically; you rarely type this yourself. |
 | say "update workflow" | A message says a newer version exists | Shows what changed and updates only with your OK (only where the installer was used). |
 | `/info` | Any time | This list. |
 Also: `node ~/.claude/hooks/project-workflow-status.mjs` in a terminal prints one table of every project: git, plan progress, decisions waiting, handoff age.

@@ -17,7 +17,7 @@ The board has one tracking place: the `## Status board` section. Format (a scrip
   - [ ] 1.3 ...
 ```
 Marks: `[ ]` not started · `[~]` in progress · `[x]` done (proof recorded) · `[-]` dropped (reason in the Change log).
-Details (purpose in plain words, "Use / Done when / Test / Decisions needed" per step) live in the phase's own file (v2: under `## Phases (details)`). Decisions live in DECISIONS.md, the work split and quality checklist in `docs/reference/TASKS.md`, the skills list in CLAUDE.md: none of those are repeated in the plan.
+Details (purpose in plain words, "Grade / Use / Done when / Test / Decisions needed" per step; the Grade comes from the `delegate` skill) live in the phase's own file (v2: under `## Phases (details)`). Decisions live in DECISIONS.md, the work split and quality checklist in `docs/reference/TASKS.md`, the skills list in CLAUDE.md: none of those are repeated in the plan.
 
 ## A. Show (/plan, "where are we")
 Read the board only (not the phase files) and answer in plain words:
@@ -33,10 +33,10 @@ The owner owns the plan. Claude proposes, the owner approves, then Claude applie
 3. Wait for the owner's OK (a choice card if there are alternatives).
 4. Apply in one change set: the board lines, the matching phase file (a NEW phase gets a new file `NN-name.md` from the example; a dropped or split phase updates or renames its file, keeping the number), a `Change log` line on the board (`- <date> (the owner approved): <what and why in the owner's words>`), bump "Plan version" and "Last changed", add or fix the file's row in docs/INDEX.md if a file was added, and update the handoff's next step and `Read first:` line if they moved.
 Optional `Focus:` line (under the legend): for plans that run workstreams in parallel, one line saying which phases/steps run now and why. Only with the owner's OK; scripts show it next to the board order.
-Rules: add new steps with the next free number, never renumber finished ones; a dropped step becomes `[-]` with a reason, never deleted; reordering phases keeps their numbers (the order on the board is the order of work).
+Rules: every step you add or edit gets a `Grade: light|standard|strong (short reason)` from the `delegate` skill (rubric and model table live there; show the grades with the proposed change and let the owner change them; old steps without a grade count as `standard`, do not grade them unasked); add new steps with the next free number, never renumber finished ones; a dropped step becomes `[-]` with a reason, never deleted; reordering phases keeps their numbers (the order on the board is the order of work).
 
 ## C. Tick (step finished)
-Mark `[x]` only after the step's Test ran. Put the proof in the step's details line or memory.md ("npm test 47/47", "screenshot .claude/audit/x.png"). Same change set as the work. When the last step of a phase is ticked, tick the phase and run the phase close.
+Mark `[x]` only after the step's Test ran (when a helper did the step, the main chat re-runs the Test itself first: `delegate` skill). Put the proof in the step's details line or memory.md ("npm test 47/47", "screenshot .claude/audit/x.png"). Same change set as the work. When the last step of a phase is ticked, tick the phase and run the phase close.
 
 ## D. Phase gate (before the first step of any phase)
 Do all four, visibly, in this order. It can be short when the phase is small, but never skipped.

@@ -32,6 +32,7 @@ A v3 project's root holds only the code, CLAUDE.md and README.md; its CLAUDE.md 
 |---|---|---|
 | /new-project, "plan this idea", "put this project on the right path" | new-project | Interview, research, choices, then a phased plan (stops for approval). Also for projects that already exist: reads the code first, skips what the files answer, plans only what remains |
 | /info | info | Lists these commands and how to use each one, in any chat |
+| /delegate, "grade the steps", "save tokens" | delegate | Grades every plan step (light / standard / strong) and runs light and standard steps in helpers on a cheaper model; the result is checked before ticking |
 | /project-audit, "what's wrong" | project-audit | Audit with evidence and fix prompts; sets up folders that have code but no CLAUDE.md |
 | /prior-art, "how do others do X" | prior-art | GitHub search for similar repos; plain-words report, licence-checked |
 | /plan, "where are we in the plan" | plan | Show progress, add/drop/reorder phases, tick steps, run phase gate/close |
@@ -40,6 +41,9 @@ A v3 project's root holds only the code, CLAUDE.md and README.md; its CLAUDE.md 
 | /project-sync, "sync projects" | project-sync | Bring existing projects up to the current template and prove it |
 | "update workflow" | update-workflow | Show what changed in a newer version of this workflow and update it, on the owner's OK |
 | `node ~/.claude/hooks/project-workflow-status.mjs` | script | Table of every project: git, template version, plan progress, decisions waiting, handoff age |
+
+### Model delegation (grade every plan step)
+Every step of every plan gets a `Grade:` (`light` / `standard` / `strong`) when the plan is made or edited (`plan`, `new-project`); the `delegate` skill holds the rubric, the model table and the rules. Default mode "mixed": when a step starts, light and standard steps that are clearly described run in a helper on the cheaper model, strong steps and anything that needs the owner stay in the main chat, and the result is checked against the step's Test before ticking. The owner approving a plan that shows the grades is the permission to start helpers; nothing else starts them. Steps without a grade count as `standard`; existing plans are not regraded unasked. Never switch the chat's own model; never claim token savings.
 
 ### Sessions, handoff, opening a project
 - Each project keeps `.claude/handoff.md` (plan position, numbered next steps, what waits on the owner; REWRITTEN from scratch, checked by `handoff-lint`) and `.claude/memory.md` (everything done, append-only). The start-up hook loads the handoff into every new session; continue from its "Next steps" unless the owner says otherwise.
