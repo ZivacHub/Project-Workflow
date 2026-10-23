@@ -106,6 +106,18 @@ if (s.isGit) {
   out.push("", "=== GIT ===", git(root, ["status", "-sb"]) || "", git(root, ["log", "--oneline", "-6"]) || "");
 }
 
+// what the handoff says to open first for the next step (layout v3), and how much a pickup reads whole
+const readFirst = s.handoff.exists ? readFirstFiles(s.handoff.text) : [];
+if (readFirst.length) out.push("", "=== READ FIRST (named by the handoff for the next step) ===", ...readFirst.map((f) => `  ${f}  (${existsSync(join(root, f)) ? kb(sizeOf(join(root, f))) + " KB" : "MISSING"})`));
+const always = ["CLAUDE.md", rel(docPath(root, "PRODUCT.md")), rel(docPath(root, "PLAN.md")), rel(docPath(root, "DECISIONS.md")), ".claude/handoff.md"].filter((f) => existsSync(join(root, f)));
+const nextStep = [...new Set([phasePath ? rel(phasePath) : null, ...readFirst].filter((f) => f && existsSync(join(root, f))))];
+const sum = (files) => files.reduce((n, f) => n + sizeOf(join(root, f)), 0);
+out.push("", "=== READ BUDGET (documents a pickup opens whole; target <= 30 KB) ===",
+  `  always: ${kb(sum(always))} KB  (${always.map((f) => f.split("/").pop()).join(", ")})`,
+  `  for the next step: ${kb(sum(nextStep))} KB  (${nextStep.length ? nextStep.map((f) => f.split("/").pop()).join(", ") : "none named"})`,
+  `  total: ${kb(sum(always) + sum(nextStep))} KB` + (s.layout === 3 ? "" : "   [layout v2: the whole plan file counts because phase detail lives inside it]"));
+
+
 // inventory of project documents so nothing relevant is overlooked
 const docs = [];
 const add = (dir, rel = "", deep = false) => { try { for (const n of readdirSync(dir)) { const p = join(dir, n); const st = statSync(p); if (st.isFile() && /\.(md|txt)$/i.test(n)) docs.push({ rel: (rel + n), kb: Math.round(st.size / 102.4) / 10, days: Math.round((Date.now() - st.mtimeMs) / 864e5) }); else if (deep && st.isDirectory()) add(p, rel + n + "/", deep); } } catch {} };
@@ -123,17 +135,6 @@ const scan = (t) => { for (const m of t.matchAll(/[A-Za-z0-9_][A-Za-z0-9_\-./]*\
 scan(s.handoff.text || ""); scan(waiting.map((d) => d.title).join(" "));
 const refs = [...pointers].filter((f) => existsSync(join(root, f)) && !/^(PRODUCT|PLAN|DECISIONS)\.md$|^\.claude\/(handoff|memory)\.md$/.test(f));
 if (refs.length) out.push("", "=== FILES NAMED in the handoff (also read the relevant ones) ===", ...refs.slice(0, 25).map((f) => "  " + f));
-
-// what the handoff says to open first for the next step (layout v3), and how much a pickup reads whole
-const readFirst = s.handoff.exists ? readFirstFiles(s.handoff.text) : [];
-if (readFirst.length) out.push("", "=== READ FIRST (named by the handoff for the next step) ===", ...readFirst.map((f) => `  ${f}  (${existsSync(join(root, f)) ? kb(sizeOf(join(root, f))) + " KB" : "MISSING"})`));
-const always = ["CLAUDE.md", rel(docPath(root, "PRODUCT.md")), rel(docPath(root, "PLAN.md")), rel(docPath(root, "DECISIONS.md")), ".claude/handoff.md"].filter((f) => existsSync(join(root, f)));
-const nextStep = [...new Set([phasePath ? rel(phasePath) : null, ...readFirst].filter((f) => f && existsSync(join(root, f))))];
-const sum = (files) => files.reduce((n, f) => n + sizeOf(join(root, f)), 0);
-out.push("", "=== READ BUDGET (documents a pickup opens whole; target <= 30 KB) ===",
-  `  always: ${kb(sum(always))} KB  (${always.map((f) => f.split("/").pop()).join(", ")})`,
-  `  for the next step: ${kb(sum(nextStep))} KB  (${nextStep.length ? nextStep.map((f) => f.split("/").pop()).join(", ") : "none named"})`,
-  `  total: ${kb(sum(always) + sum(nextStep))} KB` + (s.layout === 3 ? "" : "   [layout v2: the whole plan file counts because phase detail lives inside it]"));
 
 out.push("", "NEXT: read the files above that matter for the next step, then brief {{OWNER}} and END the briefing with a line `Files read: ...` listing what you actually opened.");
 console.log(fillOwner(cap(out.join("\n"), 26000)));

@@ -3,7 +3,7 @@
 The `project-sync` skill reads this to know what to add to a project that is on an older version.
 A project records its version in `.claude/project-workflow.json`. Rule for every entry: say what it adds, which files, and whether it is safe to add automatically (new file) or needs the owner's OK (changes an existing file).
 
-## v3 (DRAFT, started 2026-10-17; NOT released: `VERSION` stays 2 until the skills and `project-sync` know the new layout)
+## v3 (RELEASED 2026-10-23: `VERSION` is now 3; started 2026-10-17. The three live projects were moved the same day with `_workflow/tools/move-to-v3.mjs`)
 Why: project documents pile up in the root (up to 13 md files), `PLAN.md` grew to 37-90 KB mixing the progress board with every phase's detail and copies of other files, history files only grow, so a thorough pickup read about 160 KB before any work. Plan and the owner's answers: `.claude/plans/docs-reorganisation.md` (workshop repo).
 - LAYOUT: project root keeps only code + `CLAUDE.md` + `README.md`. Everything else goes to `docs/`: `INDEX.md` (every file with "read when"), `PRODUCT.md`, `DECISIONS.md` (open on top, decided below), `plan/BOARD.md` (status board + rules + change log only), `plan/phases/NN-name.md` (detail of one phase), `reference/` (ARCHITECTURE, DESIGN, TESTING, TASKS, SECURITY_CHECKLIST, AUDIT, PRIOR_ART). Moving a project = `project-sync` (needs the owner's OK per project; open chats run `/handoff` first).
 - PLAN.md split: board + rules + change log -> `docs/plan/BOARD.md`; each phase's detail -> its own `phases/NN-name.md`; decisions copy -> `DECISIONS.md`; skills list -> `CLAUDE.md`; work split + quality checklist -> `reference/TASKS.md`; risks -> the phase file. Nothing is deleted.

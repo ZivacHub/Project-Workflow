@@ -1,5 +1,10 @@
 # Project Workflow: changes per version
 
+## v0.3.1
+- `/pickup` briefing: the "read first" list and the read-budget line now come BEFORE the long document inventory, so they are no longer cut off when the output is long.
+- The project template is now version 3 (the docs layout with everything in `docs/`); `project-sync` describes the step-by-step move for projects that still keep documents in their root.
+- Update with `node install.mjs update`; nothing you edited is replaced.
+
 ## v0.3.0
 - NEW `/overview`: where is the project right now? A short plain summary plus a picture page (phases in a row, the step you are on highlighted with its grade, decisions waiting, last handoff, git state). From the projects folder it shows every project. Read-only; the page goes to the temp folder, never into your project. New script `overview.mjs`, new skill `overview`.
 - `/delegate` changed: Claude now grades EVERY task right before starting it (the plan's grade is only a first guess) and says the grade, model and effort in one line. The model table also has an effort column (light = low, standard = medium, strong = high); xhigh, max and "ultracode" are never chosen automatically. A one-line reminder was added to the start-up rules every chat gets.
