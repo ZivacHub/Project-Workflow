@@ -31,7 +31,7 @@ const skillInPkg = (name) => (FLAT ? join(PKG, "skills", name, "SKILL.md") : joi
 const INSTALLER = inPkg("install.mjs");
 const run = (args, env = {}) => { try { return { code: 0, out: execFileSync("node", [INSTALLER, ...args], { encoding: "utf8", env: { ...process.env, PROJECT_WORKFLOW_CLAUDE_DIR: "", PROJECT_WORKFLOW_ROOT: "", ...env }, stdio: ["ignore", "pipe", "pipe"] }) }; } catch (e) { return { code: e.status, out: (e.stdout || "") + (e.stderr || "") }; } };
 const world = (name) => { const base = join(TMP, name); const claude = join(base, "claude"), root = join(base, "projects"); mkdirSync(base, { recursive: true }); return { base, claude, root, args: (...more) => ["--claude-dir", claude, "--root", root, "--owner", "Sam", "--yes", ...more] }; };
-const SKILLS = ["pickup", "handoff", "plan", "new-project", "project-audit", "project-sync", "prior-art", "update-workflow"];
+const SKILLS = ["pickup", "handoff", "plan", "new-project", "project-audit", "project-sync", "prior-art", "info", "update-workflow"];
 
 try {
   // ---------- 1. fresh install ----------
@@ -49,7 +49,7 @@ try {
   const cfg = j(join(w1.claude, "project-workflow-config.json"));
   check("config: owner, root, both personal habits off", cfg.owner === "Sam" && cfg.root.replace(/\\/g, "/") === w1.root.replace(/\\/g, "/") && cfg.remoteControl === false && cfg.renameChat === false, JSON.stringify(cfg));
   const inst = j(join(w1.claude, "project-workflow-install.json"));
-  check("install record: version and owned files with hashes", inst.version === "0.1.0" && Object.keys(inst.files).length > 20, Object.keys(inst.files).length);
+  check("install record: version and owned files with hashes", inst.version === readFileSync(inPkg("VERSION"), "utf8").trim() && Object.keys(inst.files).length > 20, Object.keys(inst.files).length);
   const env1 = { PROJECT_WORKFLOW_CLAUDE_DIR: w1.claude, PROJECT_WORKFLOW_ROOT: "" };
   const opt = execFileSync("node", [join(w1.claude, "hooks", "pickup-context.mjs"), "--options"], { encoding: "utf8", env: { ...process.env, ...env1 } }).trim();
   check("installed scripts run and know the owner and the folder", /^owner=Sam root=.*projects remoteControl=off renameChat=off$/.test(opt), opt);

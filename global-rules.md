@@ -30,7 +30,8 @@ A v3 project's root holds only the code, CLAUDE.md and README.md; its CLAUDE.md 
 ### Building blocks (each works on its own, in any project)
 | Command / words | Skill | Does |
 |---|---|---|
-| /new-project, "plan this idea" | new-project | Interview, research, choices, then a phased plan (stops for approval) |
+| /new-project, "plan this idea", "put this project on the right path" | new-project | Interview, research, choices, then a phased plan (stops for approval). Also for projects that already exist: reads the code first, skips what the files answer, plans only what remains |
+| /info | info | Lists these commands and how to use each one, in any chat |
 | /project-audit, "what's wrong" | project-audit | Audit with evidence and fix prompts; sets up folders that have code but no CLAUDE.md |
 | /prior-art, "how do others do X" | prior-art | GitHub search for similar repos; plain-words report, licence-checked |
 | /plan, "where are we in the plan" | plan | Show progress, add/drop/reorder phases, tick steps, run phase gate/close |
@@ -47,5 +48,5 @@ A v3 project's root holds only the code, CLAUDE.md and README.md; its CLAUDE.md 
 - The start-up hook prints a "[Project Workflow check]" line saying what state the project is in. Follow it: not set up or no audit yet -> `project-audit`; TEMPLATE marker -> resume `new-project`; otherwise read the "always" files, the current phase and the handoff's `Read first:` files.
 
 ### Lifecycle of a project folder
-1. Empty folder: the owner describes the idea -> `new-project`. 2. Folder with code: `project-audit`. 3. Before real work: git repo, first commit, private GitHub repo. **Before ANY commit or push of a folder you haven't been working in:** list every file that would go out, READ small text/config files (a random-looking string in a note can be a password), scan for key-looking text, and exclude data, env files, browser profiles and personal documents; do this as its own step before `git add`. Never publish credentials without the owner's explicit OK; make new repos private. 4. Work: follow the plan board (phase gate before each phase); `handoff` at milestones.
+1. Empty folder: the owner describes the idea -> `new-project`. 2. Folder with code: `project-audit` (and `new-project` in existing-project mode to put it on the right path). 3. Before real work: git repo, first commit, private GitHub repo. **Before ANY commit or push of a folder you haven't been working in:** list every file that would go out, READ small text/config files (a random-looking string in a note can be a password), scan for key-looking text, and exclude data, env files, browser profiles and personal documents; do this as its own step before `git add`. Never publish credentials without the owner's explicit OK; make new repos private. 4. Work: follow the plan board (phase gate before each phase); `handoff` at milestones.
 - After a major feature, schema change or new dependency: append a dated entry to the project's .claude/memory.md. Keep each CLAUDE.md under ~150 lines.

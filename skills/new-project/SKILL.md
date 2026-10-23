@@ -1,6 +1,6 @@
 ---
 name: new-project
-description: Guided, detailed planning of a new workflow project (or a folder that still has the TEMPLATE marker). A multi-round interview where nothing is decided without the owner, a visible skills + similar-repos search, one-by-one stack choices, then a phased plan (a [ ]/[x] status board plus one small file per phase) and a DECISIONS log, all in the project's docs/ folder. Stops at approval gates; no scaffolding, installs or code until the owner approves the plan. Use when the owner says "create/make/start a new project", "new app", "plan this idea", or opens an empty folder and describes an idea.
+description: Guided, detailed planning of a new workflow project (or a folder that still has the TEMPLATE marker), and also the way to put a project that ALREADY exists on the right path (goal, decisions, a plan of what remains). A multi-round interview where nothing is decided without the owner, a visible skills + similar-repos search, one-by-one stack choices, then a phased plan (a [ ]/[x] status board plus one small file per phase) and a DECISIONS log, all in the project's docs/ folder. Stops at approval gates; no scaffolding, installs or code until the owner approves the plan. Use when the owner says "create/make/start a new project", "new app", "plan this idea", "put this project on the right path", "plan what is next for this project", or opens an empty folder and describes an idea; also when /new-project is typed inside a project that already has code or notes.
 ---
 
 # New project: interview, research, decisions, plan (in that order)
@@ -10,6 +10,15 @@ Style for every question: choice cards, plain words, no jargon (global CLAUDE.md
 
 ## Building blocks
 If the owner wants only a piece, run only that piece and stop: "find similar repos" -> `prior-art`; "which skills" -> `find-skills`; "just define the idea" -> Rounds 1-5 + PRODUCT.md; "just the plan" -> Phase E on what's already decided; "what's wrong" -> `project-audit`; "save" -> `handoff`; "continue" -> `pickup`.
+
+## Existing project (already created: has code, notes, a half-made plan, or none of the workflow files)
+`/new-project` is also how an existing project gets back on the right path. Detect it first: the folder (or the chat's project) already holds code or documents, or has no goal file / plan board. Say in one plain line that you are in "existing project" mode, then follow Phases A to F with these differences:
+1. **Read before asking:** manifests, entry points, README, folder layout, `git log`, and any of PRODUCT / DECISIONS / plan board / handoff / memory that exist. Tell the owner in plain words what you found ("here is what this project looks like to me"). Questions become specific, and anything the files already answer is skipped with a quote ("your PRODUCT.md already says X").
+2. **Set up what is missing, never overwrite:** if there is no `CLAUDE.md`, do the onboarding of `project-audit` step 1 (copy the missing template files, fill CLAUDE.md from the real code, `git init` / private GitHub repo only in Phase F after the plan is approved, with a secrets scan first). Existing files and the owner's own docs stay where they are; point to them from CLAUDE.md's docs map and `docs/INDEX.md`. An old-layout project is moved to `docs/` only by `project-sync`, never here.
+3. **Goal and decisions:** an existing `PRODUCT.md` is kept: only add what is missing, as DRAFT until the owner confirms. Decisions already visible in the code or docs are recorded as `[open]` or `[proposed]` for the owner to confirm, never as decided.
+4. **The plan covers what REMAINS:** finished work is not re-planned. Mark a step or phase `[x]` only with evidence (a test, a screenshot, a commit), `[~]` when unsure (`plan` skill, section F). The first phase is often "fix what is broken" taken from `project-audit` if the owner wants an audit; offer it, do not force it. The owner's answers decide the rest.
+5. **No code is touched.** Phase F writes docs, the handoff and (with approval) the board; building starts only at the owner's go.
+`/new-project` answers "where should this project go?"; `/project-audit` answers "what is wrong with it?". Offer the second after the first.
 
 ## Non-negotiable rules
 1. **Nothing is decided without the owner.** Not the name, stack, hosting, look, order of phases, or "obvious" defaults. If the owner hasn't said it, it's a question, or an assumption listed for the owner's veto, never a fact.

@@ -34,6 +34,10 @@
       "src": "skills/prior-art"
     },
     {
+      "name": "info",
+      "src": "skills/info"
+    },
+    {
       "name": "update-workflow",
       "src": "skills/update-workflow"
     }
