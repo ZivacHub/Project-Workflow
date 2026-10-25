@@ -1,5 +1,9 @@
 # Project Workflow: changes per version
 
+## v0.4.0
+- NEW `Install.bat` (Windows): double-click it. It checks that Node.js is there (and, if you agree, installs it with Windows' own winget, or opens the download page), shows a small menu (Install, Preview, Update, Check, Uninstall) and runs the installer for you; messages are in plain words. With arguments it skips the menu (`Install.bat update`). Mac and Linux keep using `node install.mjs`.
+- Update with `node install.mjs update`; nothing you edited is replaced.
+
 ## v0.3.2
 - `/handoff` and Remote Control: it is switched off ONLY when you type `/handoff` yourself. A handoff Claude starts on its own (milestone, phase end, after the chat was compacted) or words like "wrap up" never touch it and never ask about it. (Only matters if you turned the `remoteControl` option on.)
 - Update with `node install.mjs update`; nothing you edited is replaced.

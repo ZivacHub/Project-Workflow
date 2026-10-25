@@ -12,11 +12,12 @@ You keep the same short commands in every project: `/pickup`, `/handoff`, `/plan
 - git is optional but recommended (projects are tracked in git; `/pickup` compares the handoff with git).
 
 ## Install (3 steps)
-1. Download this repository (green **Code** button, then **Download ZIP**, or `git clone https://github.com/ZivacHub/Project-Workflow.git`) and open a terminal in that folder.
-2. Run `node install.mjs`. It asks two things: **which folder holds your projects** (it is created if missing) and **what name Claude should call you**. It shows what it will do and waits for your "y".
+1. Download this repository (green **Code** button, then **Download ZIP** and unzip it, or `git clone https://github.com/ZivacHub/Project-Workflow.git`).
+2. **Windows: double-click `Install.bat`.** A small menu opens (Install, Preview, Update, Check, Uninstall). If Node.js is missing it tells you and offers to install it for you. Choose **1 Install**: it asks two things, **which folder holds your projects** (it is created if missing) and **what name Claude should call you**, shows what it will do and waits for your "y".
+   Mac and Linux: open a terminal in that folder and run `node install.mjs` (same two questions).
 3. Open Claude Code inside any project folder under that folder and type `/pickup` (continue a project) or, in an empty folder, `/new-project`. Open a chat in your projects folder itself to see the overview of all projects.
 
-Try it without risk first: `node install.mjs --dry-run` prints everything it would do and writes nothing.
+Try it without risk first: choose **2 Preview** in the menu (or run `node install.mjs --dry-run`): it prints everything it would do and writes nothing. `Install.bat` also takes the same words directly, for example `Install.bat update` or `Install.bat check`.
 
 ## What the installer changes on your computer
 Everything is inside your Claude folder (`~/.claude`) and your projects folder. Nothing else.

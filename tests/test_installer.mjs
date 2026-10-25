@@ -1,7 +1,7 @@
 // Tests the Project Workflow installer (install.mjs; in the workshop repo _workflow/installer/install.mjs) end to end, only in throwaway folders:
 // a fake ~/.claude (--claude-dir) and a fake projects folder (--root). Nothing of the real ~/.claude or projects folder is touched.
 // run: node tests/test_installer.mjs   (workshop repo: node _workflow/tests/test_installer.mjs)
-import { execFile, execFileSync } from "node:child_process";
+import { execFile, execFileSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
@@ -173,6 +173,27 @@ try {
   const t1 = Date.now(); c = await hookAt(w6, { PROJECT_WORKFLOW_UPDATE_URL: `http://127.0.0.1:${slow.address().port}/VERSION` });
   check("server that never answers: gives up after about 2.5 s, no line, hook still exits 0", !c.includes("UPDATE AVAILABLE") && c.includes("[Workflow workshop]") && Date.now() - t1 < 6000, `${Date.now() - t1} ms`);
   slow.closeAllConnections?.(); await new Promise((ok) => slow.close(ok));
+
+  // ---------- 9. Install.bat (only in the public package, only on Windows)
+  if (FLAT && process.platform === "win32") {
+    const bat = join(ROOT, "Install.bat"), raw = readFileSync(bat, "latin1");
+    check("Install.bat: CRLF line endings only, and .gitattributes keeps them as they are", raw.includes("\r\n") && !/[^\r]\n/.test(raw) && /\*\.bat -text/.test(readFileSync(join(ROOT, ".gitattributes"), "utf8")));
+    const w9 = world("bat");
+    let r9 = spawnSync("cmd", ["/c", bat, "--dry-run", "--yes", "--owner", "Sam", ...w9.args()], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    check("Install.bat with arguments skips the menu and runs the installer (dry run writes nothing)", r9.status === 0 && /dry run/i.test(r9.stdout) && !existsSync(w9.root), r9.status + " " + r9.stdout + r9.stderr);
+    r9 = spawnSync("cmd", ["/c", bat, "--dry-run"], { encoding: "utf8", env: { ...process.env, PATH: join(process.env.SystemRoot || "C:\\Windows", "System32") }, stdio: ["ignore", "pipe", "pipe"] });
+    check("Install.bat without Node.js: says so in plain words and exits 9 without asking anything", r9.status === 9 && /Node\.js is not installed/.test(r9.stdout), r9.status + " " + r9.stdout);
+    r9 = spawnSync("cmd", ["/c", bat], { encoding: "utf8", input: "", timeout: 30000, env: { ...process.env, PROJECT_WORKFLOW_CLAUDE_DIR: w9.claude, PROJECT_WORKFLOW_ROOT: w9.root }, stdio: ["pipe", "pipe", "pipe"] });
+    check("Install.bat menu: shows the menu and, when no key can be read, quits without installing", /PROJECT WORKFLOW/.test(r9.stdout) && !existsSync(join(w9.claude, "skills")) && !existsSync(w9.root), r9.status + " " + r9.stdout.slice(0, 200) + r9.stderr);
+    // every menu key reaches the right installer word: a copy of the batch file with a fake `choice` and a fake install.mjs that only prints its arguments
+    const fake = join(TMP, "bat-fake"); mkdirSync(fake, { recursive: true });
+    writeFileSync(join(fake, "Install.bat"), raw.replace(/^choice \/c 12345Q.*$/m, 'call "%~dp0choice.cmd"'), "latin1");
+    writeFileSync(join(fake, "install.mjs"), 'console.log("FAKE ARGS " + JSON.stringify(process.argv.slice(2)));\n');
+    writeFileSync(join(fake, "choice.cmd"), "@echo off\r\nif exist n.txt exit /b 6\r\necho x>n.txt\r\nexit /b %PICKNOW%\r\n");
+    const got = {};
+    for (const key of [1, 2, 3, 4, 5]) { rmSync(join(fake, "n.txt"), { force: true }); const r = spawnSync("cmd", ["/c", join(fake, "Install.bat")], { encoding: "utf8", input: "", timeout: 30000, env: { ...process.env, PICKNOW: String(key) }, stdio: ["pipe", "pipe", "pipe"] }); got[key] = (/FAKE ARGS (\[.*\])/.exec(r.stdout) || [])[1]; }
+    check("Install.bat menu: keys 1-5 run install, preview, update, check, uninstall", same(got, { 1: "[]", 2: '["--dry-run"]', 3: '["update"]', 4: '["check"]', 5: '["uninstall"]' }), JSON.stringify(got));
+  }
 } finally {
   rmSync(TMP, { recursive: true, force: true });
   console.log(existsSync(TMP) ? "CLEANUP FAILED" : "cleanup: throwaway folders removed");
