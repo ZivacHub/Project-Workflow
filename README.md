@@ -64,7 +64,7 @@ Pickups stay small on purpose: they read only the goal, the board, open decision
 |---|---|---|
 | `root` | Your projects folder | asked at install |
 | `owner` | The name Claude uses for you | asked at install |
-| `remoteControl` | `/pickup` switches Claude Code's Remote Control on, `/handoff` off when you end a chat | `false` |
+| `remoteControl` | `/pickup` switches Claude Code's Remote Control on, `/handoff` (typed by you) switches it off | `false` |
 | `renameChat` | `/pickup` renames the chat to "Project - next step - time" | `false` |
 | `updateCheck` | Look once a day for a newer version (see Updates) | on |
 

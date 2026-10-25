@@ -1,5 +1,9 @@
 # Project Workflow: changes per version
 
+## v0.3.2
+- `/handoff` and Remote Control: it is switched off ONLY when you type `/handoff` yourself. A handoff Claude starts on its own (milestone, phase end, after the chat was compacted) or words like "wrap up" never touch it and never ask about it. (Only matters if you turned the `remoteControl` option on.)
+- Update with `node install.mjs update`; nothing you edited is replaced.
+
 ## v0.3.1
 - `/pickup` briefing: the "read first" list and the read-budget line now come BEFORE the long document inventory, so they are no longer cut off when the output is long.
 - The project template is now version 3 (the docs layout with everything in `docs/`); `project-sync` describes the step-by-step move for projects that still keep documents in their root.
