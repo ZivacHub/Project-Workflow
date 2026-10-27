@@ -23,7 +23,7 @@ Try it without risk first: choose **2 Preview** in the menu (or run `node instal
 Everything is inside your Claude folder (`~/.claude`) and your projects folder. Nothing else.
 | What | Where |
 |---|---|
-| Skills (`pickup`, `handoff`, `plan`, `new-project`, `project-audit`, `project-sync`, `prior-art`, `info`, `delegate`, `overview`, `update-workflow`) | `~/.claude/skills/<name>/` |
+| Skills (`pickup`, `handoff`, `plan`, `new-project`, `project-audit`, `project-sync`, `prior-art`, `info`, `delegate`, `overview`, `docs`, `update-workflow`) | `~/.claude/skills/<name>/` |
 | Helper scripts and the start-up check | `~/.claude/hooks/` |
 | One start-up entry that runs the check when a chat opens | `~/.claude/settings.json` (your other settings stay) |
 | A clearly marked block of working rules | `~/.claude/CLAUDE.md` (your own text stays; the block sits between `PROJECT-WORKFLOW:BEGIN` and `END`) |
@@ -39,6 +39,7 @@ It never replaces a file you edited, and it stops (without changing anything) if
 |---|---|
 | `/new-project` | A long interview, a search for similar projects, one-by-one choices, then a phased plan. Nothing is built until you approve the plan. Also for a project that already exists: it reads the code first, skips what the files already answer and plans only what remains. |
 | `/info` | Lists these commands and how to use each one, in any chat. |
+| `/docs` | Big projects: finds the 1-4 documents a topic needs so a chat opens only those (`/docs combat`), splits a huge document into small area files (nothing is lost, the original is kept), and checks for big or unlabelled docs. |
 | `/overview` | Where are we? A short plain summary plus a picture page: the phases in a row, the step you are on highlighted, decisions waiting, last handoff, git state. From the projects folder it shows every project. Changes nothing. |
 | `/delegate` | Before every task Claude gives it a difficulty grade (light / standard / strong) and says it out loud. Light and standard tasks run in helpers on a cheaper model and effort, hard ones stay in your chat, and each result is checked before the step is ticked. It happens by itself. |
 | `/pickup` or "continue" | Loads the goal, plan board, open decisions and handoff, checks them against git, tells you in plain words where you are, continues in plan order. |

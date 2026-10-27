@@ -15,6 +15,12 @@ Every file in docs/ is listed here with WHEN to read it. A script checks that no
 |---|---|
 | plan/phases/NN-name.md | You work on that phase (one file per phase; read only the current one). |
 
+## Design areas (big projects only: one file per part of the project; open only the one you work on)
+| File | Read when |
+|---|---|
+| design/_area-example.md | Pattern for an area file. Copy it as design/<area>.md; delete this row and the example when you have real areas. Small projects need no design/ folder at all. |
+| (find one by topic) | Run `node ~/.claude/hooks/docs-find.mjs "<topic>"`: it names the 1-4 files worth opening. |
+
 ## On demand (read only when the step touches it)
 | File | Read when |
 |---|---|

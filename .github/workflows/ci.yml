@@ -27,3 +27,5 @@ jobs:
         run: node tests/test_rotate.mjs
       - name: Example project is a valid v3 project
         run: node tests/test_example.mjs
+      - name: Big-project docs (design areas, Needs, finder, splitter)
+        run: node tests/test_docs.mjs

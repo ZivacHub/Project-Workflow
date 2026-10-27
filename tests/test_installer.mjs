@@ -31,7 +31,7 @@ const skillInPkg = (name) => (FLAT ? join(PKG, "skills", name, "SKILL.md") : joi
 const INSTALLER = inPkg("install.mjs");
 const run = (args, env = {}) => { try { return { code: 0, out: execFileSync("node", [INSTALLER, ...args], { encoding: "utf8", env: { ...process.env, PROJECT_WORKFLOW_CLAUDE_DIR: "", PROJECT_WORKFLOW_ROOT: "", ...env }, stdio: ["ignore", "pipe", "pipe"] }) }; } catch (e) { return { code: e.status, out: (e.stdout || "") + (e.stderr || "") }; } };
 const world = (name) => { const base = join(TMP, name); const claude = join(base, "claude"), root = join(base, "projects"); mkdirSync(base, { recursive: true }); return { base, claude, root, args: (...more) => ["--claude-dir", claude, "--root", root, "--owner", "Sam", "--yes", ...more] }; };
-const SKILLS = ["pickup", "handoff", "plan", "new-project", "project-audit", "project-sync", "prior-art", "info", "delegate", "overview", "update-workflow"];
+const SKILLS = ["pickup", "handoff", "plan", "new-project", "project-audit", "project-sync", "prior-art", "info", "delegate", "overview", "docs", "update-workflow"];
 
 try {
   // ---------- 1. fresh install ----------

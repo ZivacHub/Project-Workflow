@@ -25,13 +25,14 @@ Documents live in `docs/` (layout v3); older projects have them in the project r
 | Background: DESIGN, ARCHITECTURE, TESTING, TASKS, GATES, SECURITY_CHECKLIST, AUDIT, PRIOR_ART | docs/reference/<NAME>.md | <NAME>.md in the root |
 | Index of every doc with "read when" | docs/INDEX.md | none |
 | Handoff and history | .claude/handoff.md; .claude/memory.md (this month) + .claude/memory/YYYY-MM.md | .claude/handoff.md; .claude/memory.md |
-A v3 project's root holds only the code, CLAUDE.md and README.md; its CLAUDE.md ends with a short docs map. **Reading tiers:** always = CLAUDE.md, PRODUCT, BOARD, open decisions, handoff; for the next step = the current phase file and the files on the handoff's `Read first:` line (1-4 files); on demand = reference/, older memory, other phases. A pickup should open at most about 30 KB whole. New doc? Put it in docs/ and add a row to docs/INDEX.md.
+A v3 project's root holds only the code, CLAUDE.md and README.md; its CLAUDE.md ends with a short docs map. **Reading tiers:** always = CLAUDE.md, PRODUCT, BOARD, open decisions, handoff; for the next step = the current phase file and the files on the handoff's `Read first:` line (1-4 files); on demand = reference/, older memory, other phases. A pickup should open at most about 30 KB whole. New doc? Put it in docs/ and add a row to docs/INDEX.md. **Big projects (a game with many mechanics):** one file per area in `docs/design/<area>.md`, each starting with a `Read when:` line and kept under about 12 KB; plan steps name the areas they need with `Needs:`; a chat opens only those (`docs-find.mjs "<topic>"` finds them, `/docs split` splits a doc that grew too big).
 
 ### Building blocks (each works on its own, in any project)
 | Command / words | Skill | Does |
 |---|---|---|
 | /new-project, "plan this idea", "put this project on the right path" | new-project | Interview, research, choices, then a phased plan (stops for approval). Also for projects that already exist: reads the code first, skips what the files answer, plans only what remains |
 | /info | info | Lists these commands and how to use each one, in any chat |
+| /docs, "which docs are about X", "split this doc" | docs | Finds the 1-4 docs a topic needs (so a chat opens only those), splits a huge document into small area files in docs/design/ with a proof that no line is lost, and checks for big or unlabelled docs |
 | /overview, "where are we", "show the state" | overview | Short plain summary plus a picture page: phases in a row, the step you are on highlighted, decisions waiting, last handoff, git. From the projects folder: every project. Read-only |
 | /delegate, "grade the steps", "save tokens" | delegate | Grades every plan step (light / standard / strong) and runs light and standard steps in helpers on a cheaper model; the result is checked before ticking |
 | /project-audit, "what's wrong" | project-audit | Audit with evidence and fix prompts; sets up folders that have code but no CLAUDE.md |

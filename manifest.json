@@ -46,6 +46,10 @@
       "src": "skills/overview"
     },
     {
+      "name": "docs",
+      "src": "skills/docs"
+    },
+    {
       "name": "update-workflow",
       "src": "skills/update-workflow"
     }
@@ -74,6 +78,14 @@
     {
       "dest": "overview.mjs",
       "src": "hooks/overview.mjs"
+    },
+    {
+      "dest": "docs-find.mjs",
+      "src": "hooks/docs-find.mjs"
+    },
+    {
+      "dest": "split-doc.mjs",
+      "src": "hooks/split-doc.mjs"
     },
     {
       "dest": "rules-digest.md",

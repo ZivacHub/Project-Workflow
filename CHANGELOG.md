@@ -1,5 +1,10 @@
 # Project Workflow: changes per version
 
+## v0.5.0
+- NEW `/docs` for big projects (a game with many mechanics): each big part gets its own small file in `docs/design/<area>.md` that starts with a `Read when:` line, a plan step names the areas it needs with `Needs:`, and a chat opens only those. `/docs <topic>` (script `docs-find.mjs`) names the 1-4 files a topic needs; `/docs split <file>` (script `split-doc.mjs`) splits a huge document into area files and proves that no line is lost (the original is kept); `/docs check` lists docs that are too big or unlabelled.
+- `/pickup`: the docs index is now shown as a compact list that is no longer cut off in the middle, the step's `Needs:` files are listed and counted in the read budget, and the long document inventory is replaced by one line in projects that have an index. `/new-project` asks for the big areas of a big project and creates the area files. Project template: `docs/design/_area-example.md`.
+- Update with `node install.mjs update`; nothing you edited is replaced.
+
 ## v0.4.0
 - NEW `Install.bat` (Windows): double-click it. It checks that Node.js is there (and, if you agree, installs it with Windows' own winget, or opens the download page), shows a small menu (Install, Preview, Update, Check, Uninstall) and runs the installer for you; messages are in plain words. With arguments it skips the menu (`Install.bat update`). Mac and Linux keep using `node install.mjs`.
 - Update with `node install.mjs update`; nothing you edited is replaced.

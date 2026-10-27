@@ -47,7 +47,8 @@ One-line purpose: <what it is and who it's for>
 
 ## Where things are (docs map; full list with "read when" in docs/INDEX.md)
 - Always read: this file, docs/PRODUCT.md, docs/plan/BOARD.md, docs/DECISIONS.md (open part), .claude/handoff.md.
-- Current phase only: docs/plan/phases/NN-name.md. The handoff's `Read first:` line names the rest for the next step.
+- Current phase only: docs/plan/phases/NN-name.md. The handoff's `Read first:` line and the step's `Needs:` name the rest for the next step.
+- Big projects: one file per area in docs/design/ (each starts with a `Read when:` line). Open only the area you work on; find it with `node ~/.claude/hooks/docs-find.mjs "<topic>"`.
 - On demand: docs/reference/ (ARCHITECTURE, DESIGN, TESTING, TASKS, SECURITY_CHECKLIST, AUDIT, PRIOR_ART). History: .claude/memory.md (this month), .claude/memory/YYYY-MM.md (older).
 - Root of the project = code + this file + README.md only. New doc? Put it in docs/ and add a row to docs/INDEX.md.
 

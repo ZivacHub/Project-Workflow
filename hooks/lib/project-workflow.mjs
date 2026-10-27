@@ -82,7 +82,41 @@ export function lintLayout(root) {
   if (stray.length) w.push(`loose doc file(s) in the project root, move into docs/: ${stray.join(", ")}`);
   const claude = read(join(root, "CLAUDE.md"));
   if (claude && !claude.includes("docs/INDEX.md")) w.push("CLAUDE.md does not point to docs/INDEX.md (other Claude instances won't know where the docs are)");
+  // design areas (docs/design/*.md): each starts with a "Read when:" line so a chat knows when to open it
+  for (const f of files.filter((x) => x.startsWith("design/") && !/^design\/_/.test(x))) {
+    const head = read(join(root, "docs", f)).split("\n").slice(0, 15).join("\n");
+    if (!/^Read when:/im.test(head)) w.push(`docs/${f} has no "Read when:" line near the top (say when a chat should open it)`);
+    else if (/make this line more precise/i.test(head)) w.push(`docs/${f}: its "Read when:" line is still the automatic one from the split: write when a chat really needs this file`);
+  }
+  // a step's "Needs:" must name files that exist
+  const pdir = join(root, "docs", "plan", "phases");
+  for (const n of safeReaddir(pdir).filter((x) => /\.md$/i.test(x) && !x.startsWith("_"))) for (const m of read(join(pdir, n)).matchAll(NEEDS_RE)) for (const f of m[1].matchAll(/`([^`]+)`/g)) if (!existsSync(join(root, f[1]))) w.push(`${n}: a step needs ${f[1]}, which does not exist`);
   return w;
+}
+
+// "Needs: `docs/design/combat.md`, `docs/design/items.md`." on a plan step: the docs that step must open (paths from the project root)
+const NEEDS_RE = /Needs:((?:\s*`[^`]+`\s*,?)+)/g;
+/** The docs the NEXT board step names with `Needs:` in its phase file (layout v3), or null when there is no such step. */
+export function stepNeeds(root, plan) {
+  if (!plan || !plan.next || plan.next.phaseOnly) return null;
+  const id = (/^\S+/.exec(plan.next.title) || [])[0]; if (!id) return null;
+  const phase = plan.phases.find((p) => p.steps.includes(plan.next)); const pf = phase && phaseFile(root, phase.title);
+  if (!pf) return { id, files: [] };
+  const line = new RegExp("\\*\\*\\s*" + id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b[^\\n]*").exec(read(pf));
+  const files = []; if (line) for (const m of line[0].matchAll(NEEDS_RE)) for (const f of m[1].matchAll(/`([^`]+)`/g)) files.push(f[1].replace(/^\.\//, ""));
+  return { id, files: [...new Set(files)] };
+}
+
+/** Documents in docs/ that are too big to open "just in case" (the always-read ones, phases, archive and INDEX have their own rules). */
+export function oversizedDocs(root, limitBytes = 12 * 1024) {
+  const out = [];
+  const walk = (dir, rel) => { for (const n of safeReaddir(dir)) {
+    let st; try { st = statSync(join(dir, n)); } catch { continue; }
+    if (st.isDirectory()) { if (n !== "phases" && n !== "archive") walk(join(dir, n), rel + n + "/"); }
+    else if (/\.md$/i.test(n) && !/^(INDEX|PRODUCT|DECISIONS)\.md$/.test(n) && rel !== "plan/" && st.size > limitBytes) out.push({ file: "docs/" + rel + n, kb: kb(st.size) });
+  } };
+  if (layoutOf(root) === 3) walk(join(root, "docs"), "");
+  return out.sort((a, b) => b.kb - a.kb);
 }
 
 export function git(root, args) {

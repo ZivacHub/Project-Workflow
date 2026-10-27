@@ -3,7 +3,7 @@
 // list the files it read). Unlike the SessionStart hook this is not limited to 10,000 characters.
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, relative } from "node:path";
-import { OWNER, OPTIONS, fillOwner, locate, read, projectState, planSummary, git, PROJECTS_ROOT, collectProjects, lintHandoff, currentTemplateVersion, docPath, phaseFile, readFirstFiles, safeReaddir, sizeOf, kb, HOME_CLAUDE } from "./lib/project-workflow.mjs";
+import { OWNER, OPTIONS, fillOwner, locate, read, projectState, planSummary, git, PROJECTS_ROOT, collectProjects, lintHandoff, currentTemplateVersion, docPath, phaseFile, readFirstFiles, safeReaddir, sizeOf, kb, HOME_CLAUDE, stepNeeds, oversizedDocs } from "./lib/project-workflow.mjs";
 
 // the owner and the personal options (read by the pickup/handoff skills before they do anything else)
 if (process.argv.includes("--options")) { console.log(`owner=${OWNER} root=${PROJECTS_ROOT} remoteControl=${OPTIONS.remoteControl ? "on" : "off"} renameChat=${OPTIONS.renameChat ? "on" : "off"}`); process.exit(0); }
@@ -63,6 +63,21 @@ const s = projectState(root);
 const out = [];
 const cap = (t, n) => (t.length > n ? t.slice(0, n) + "\n...(cut, read the file)" : t);
 const sh = (n) => `${n}`;
+/** INDEX.md as short lines "file - when to read it", cut at a row boundary (never in the middle of a row), so a big project's index is not lost to a character cap. */
+function compactIndex(text, limit) {
+  const lines = []; let skip = false, total = 0, dropped = 0;
+  for (const raw of text.split("\n")) {
+    const l = raw.replace(/\r$/, "").trim(); if (!l || /^\|[\s|:-]+\|$/.test(l) || /^\|\s*File\s*\|/i.test(l)) continue;
+    if (/^#{1,3}\s/.test(l)) { skip = /^#{2,3}\s+Rules/i.test(l); if (!skip && !/^#\s/.test(l)) lines.push(l.replace(/^#+\s*/, "")); continue; }
+    if (skip) continue;
+    const m = /^\|\s*([^|]+?)\s*\|\s*(.+?)\s*\|?$/.exec(l); if (!m) continue;
+    const row = `  ${m[1]} - ${m[2].replace(/\s*\|\s*$/, "").slice(0, 120)}`;
+    if (total + row.length > limit) { dropped++; continue; }
+    lines.push(row); total += row.length + 1;
+  }
+  if (dropped) lines.push(`  (+${dropped} more rows: open docs/INDEX.md, or find by topic: node ~/.claude/hooks/docs-find.mjs "<topic>")`);
+  return lines.join("\n");
+}
 
 out.push(`PROJECT: ${where.name}   folder: ${root}`);
 out.push(`Template: v${s.version || 0} (current v${s.current}).  Docs layout: v${s.layout}${s.layout === 3 ? " (documents in docs/)" : " (documents in the project root)"}.  Git: ${s.isGit ? (s.remote || "no remote") : "no git"}.`);
@@ -87,6 +102,22 @@ else if (s.plan?.next && !s.plan.next.phaseOnly && planText) {
   if (i >= 0) out.push("", `=== PLAN detail for the next step (${id}) ===`, cap(lines.slice(i, i + 5).join("\n"), 1600));
 }
 
+// what the handoff says to open first for the next step (layout v3), and how much a pickup reads whole
+const readFirst = s.handoff.exists ? readFirstFiles(s.handoff.text) : [];
+if (readFirst.length) out.push("", "=== READ FIRST (named by the handoff for the next step) ===", ...readFirst.map((f) => `  ${f}  (${existsSync(join(root, f)) ? kb(sizeOf(join(root, f))) + " KB" : "MISSING"})`));
+// the docs the next board step names with `Needs:` (layout v3): open these, not the whole docs/ folder
+const needs = s.layout === 3 ? stepNeeds(root, s.plan) : null;
+if (needs && needs.files.length) out.push("", `=== NEXT STEP ${needs.id} NEEDS (named in its phase file with Needs:) ===`, ...needs.files.map((f) => `  ${f}  (${existsSync(join(root, f)) ? kb(sizeOf(join(root, f))) + " KB" : "MISSING"})`));
+else if (needs && s.layout === 3 && existsSync(join(root, "docs", "design"))) out.push("", `=== NEXT STEP ${needs.id} names no docs (no Needs: on its line): ask which area docs it touches with: node ~/.claude/hooks/docs-find.mjs "<topic>" ===`);
+const always = ["CLAUDE.md", rel(docPath(root, "PRODUCT.md")), rel(docPath(root, "PLAN.md")), rel(docPath(root, "DECISIONS.md")), ".claude/handoff.md"].filter((f) => existsSync(join(root, f)));
+const nextStep = [...new Set([phasePath ? rel(phasePath) : null, ...readFirst, ...(needs ? needs.files : [])].filter((f) => f && existsSync(join(root, f))))];
+const sum = (files) => files.reduce((n, f) => n + sizeOf(join(root, f)), 0);
+out.push("", "=== READ BUDGET (documents a pickup opens whole; target <= 30 KB) ===",
+  `  always: ${kb(sum(always))} KB  (${always.map((f) => f.split("/").pop()).join(", ")})`,
+  `  for the next step: ${kb(sum(nextStep))} KB  (${nextStep.length ? nextStep.map((f) => f.split("/").pop()).join(", ") : "none named"})`,
+  `  total: ${kb(sum(always) + sum(nextStep))} KB` + (s.layout === 3 ? "" : "   [layout v2: the whole plan file counts because phase detail lives inside it]"));
+
+
 const waiting = [...s.decisions.open, ...s.decisions.proposed];
 out.push("", `=== DECISIONS waiting on {{OWNER}}: ${waiting.length} ===`);
 for (const d of waiting) out.push(`  ${d.id} [${d.status}] ${d.title}`);
@@ -106,16 +137,6 @@ if (s.isGit) {
   out.push("", "=== GIT ===", git(root, ["status", "-sb"]) || "", git(root, ["log", "--oneline", "-6"]) || "");
 }
 
-// what the handoff says to open first for the next step (layout v3), and how much a pickup reads whole
-const readFirst = s.handoff.exists ? readFirstFiles(s.handoff.text) : [];
-if (readFirst.length) out.push("", "=== READ FIRST (named by the handoff for the next step) ===", ...readFirst.map((f) => `  ${f}  (${existsSync(join(root, f)) ? kb(sizeOf(join(root, f))) + " KB" : "MISSING"})`));
-const always = ["CLAUDE.md", rel(docPath(root, "PRODUCT.md")), rel(docPath(root, "PLAN.md")), rel(docPath(root, "DECISIONS.md")), ".claude/handoff.md"].filter((f) => existsSync(join(root, f)));
-const nextStep = [...new Set([phasePath ? rel(phasePath) : null, ...readFirst].filter((f) => f && existsSync(join(root, f))))];
-const sum = (files) => files.reduce((n, f) => n + sizeOf(join(root, f)), 0);
-out.push("", "=== READ BUDGET (documents a pickup opens whole; target <= 30 KB) ===",
-  `  always: ${kb(sum(always))} KB  (${always.map((f) => f.split("/").pop()).join(", ")})`,
-  `  for the next step: ${kb(sum(nextStep))} KB  (${nextStep.length ? nextStep.map((f) => f.split("/").pop()).join(", ") : "none named"})`,
-  `  total: ${kb(sum(always) + sum(nextStep))} KB` + (s.layout === 3 ? "" : "   [layout v2: the whole plan file counts because phase detail lives inside it]"));
 
 
 // inventory of project documents so nothing relevant is overlooked
@@ -123,11 +144,16 @@ const docs = [];
 const add = (dir, rel = "", deep = false) => { try { for (const n of readdirSync(dir)) { const p = join(dir, n); const st = statSync(p); if (st.isFile() && /\.(md|txt)$/i.test(n)) docs.push({ rel: (rel + n), kb: Math.round(st.size / 102.4) / 10, days: Math.round((Date.now() - st.mtimeMs) / 864e5) }); else if (deep && st.isDirectory()) add(p, rel + n + "/", deep); } } catch {} };
 add(root); add(join(root, "docs"), "docs/", s.layout === 3); add(join(root, ".claude"), ".claude/");
 if (s.layout === 3) {
-  out.push("", "=== docs/INDEX.md (what each file is and when to read it) ===", cap(read(join(root, "docs", "INDEX.md")).trim(), 4000) || "(missing)");
+  out.push("", "=== docs/INDEX.md, compact (file - when to read it; the full list is the file itself) ===", compactIndex(read(join(root, "docs", "INDEX.md")), 4500) || "(missing)");
   if (s.layoutWarnings.length) out.push("", "=== DOCS LAYOUT CHECK (script) ===", ...s.layoutWarnings.map((w) => "  ! " + w));
+  const big = oversizedDocs(root);
+  if (big.length) out.push("", "=== BIG DOCS (over 12 KB: split them so a chat opens only the part it needs: /docs split <file>) ===", ...big.slice(0, 6).map((b) => `  ${b.file}  (${b.kb} KB)`));
 }
-out.push("", `=== DOCUMENTS in the project (${docs.length}): read the ones that touch the next step ===`);
-for (const d of docs.sort((a, b) => a.rel.localeCompare(b.rel))) out.push(`  ${d.rel}  (${d.kb} KB, changed ${d.days}d ago)`);
+if (s.layout === 3) out.push("", `=== DOCUMENTS: ${docs.filter((d) => d.rel.startsWith("docs/")).length} files under docs/ (all listed in docs/INDEX.md). Find the right ones for a topic: node ~/.claude/hooks/docs-find.mjs "<topic>" ===`);
+else {
+  out.push("", `=== DOCUMENTS in the project (${docs.length}): read the ones that touch the next step ===`);
+  for (const d of docs.sort((a, b) => a.rel.localeCompare(b.rel))) out.push(`  ${d.rel}  (${d.kb} KB, changed ${d.days}d ago)`);
+}
 
 // files the handoff / plan next-step / open decisions point at
 const pointers = new Set();

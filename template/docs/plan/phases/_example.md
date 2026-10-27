@@ -8,9 +8,10 @@ Board: docs/plan/BOARD.md lists this phase's steps and ticks. This file holds th
 - <files from docs/reference/ or code folders that matter for THIS phase only, e.g. docs/reference/DESIGN.md>
 
 ## Steps
-**0.1 <step title>** — Grade: <light|standard|strong> (<short reason>). Use: <skill/tool>. Done when: <observable result>. Test: <command / screenshot / check>. Decisions needed: <D-ids or none>.
+**0.1 <step title>** — Grade: <light|standard|strong> (<short reason>). Needs: <`docs/design/<area>.md` files this step must open, or leave out>. Use: <skill/tool>. Done when: <observable result>. Test: <command / screenshot / check>. Decisions needed: <D-ids or none>.
 **0.2 ...**
 Grades (the `delegate` skill has the rubric and the model table): `light` = mechanical and easy to check, runs in a helper on the cheapest model; `standard` = clear spec, follows a pattern, helper on the middle model; `strong` = unclear or high-stakes or needs the owner, stays in the main chat. The grade is a first guess: Claude grades the step again right before starting it.
+`Needs:` (big projects) names, in backticks, the docs a chat must open for that step, for example Needs: `docs/design/combat.md`, `docs/design/items.md`. A chat opens those and nothing else of the design docs.
 
 ## Risks and open points (only for this phase)
 - <item>; the moment the owner has to answer one, move it to docs/DECISIONS.md as `[open]`.
